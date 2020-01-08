@@ -30,15 +30,16 @@ endif()
 
 configure_package_config_file(tabulateConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/tabulateConfig.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tabulate)
+  INSTALL_DESTINATION share/feelpp/feel/cmake/modules)
+  #INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tabulate)
 
 install(TARGETS tabulate EXPORT tabulateTargets)
 install(EXPORT tabulateTargets
         FILE tabulateTargets.cmake
         NAMESPACE tabulate::
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tabulate)
+        DESTINATION share/feelpp/feel/cmake/modules)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tabulateConfig.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tabulate)
+  DESTINATION share/feelpp/feel/cmake/modules )
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/feelpp/
         USE_SOURCE_PERMISSIONS
