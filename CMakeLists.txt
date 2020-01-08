@@ -21,7 +21,7 @@ add_library(tabulate::tabulate ALIAS tabulate)
 
 target_compile_features(tabulate INTERFACE cxx_std_17)
 target_include_directories(tabulate INTERFACE
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/feelpp/tabulate>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
 
 if( SAMPLES )
@@ -39,7 +39,7 @@ install(EXPORT tabulateTargets
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tabulate)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tabulateConfig.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tabulate)
-install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/tabulate
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/feelpp/
         USE_SOURCE_PERMISSIONS
         PATTERN "*.hpp")
