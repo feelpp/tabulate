@@ -13,6 +13,9 @@ target_link_libraries(font_styles PRIVATE tabulate::tabulate)
 add_executable(iterators iterators.cpp)
 target_link_libraries(iterators PRIVATE tabulate::tabulate)
 
+add_executable(latex_export latex_export.cpp)
+target_link_libraries(latex_export PRIVATE tabulate::tabulate)
+
 add_executable(markdown_export markdown_export.cpp)
 target_link_libraries(markdown_export PRIVATE tabulate::tabulate)
 
@@ -42,3 +45,9 @@ target_link_libraries(universal_constants PRIVATE tabulate::tabulate)
 
 add_executable(word_wrapping word_wrapping.cpp)
 target_link_libraries(word_wrapping PRIVATE tabulate::tabulate)
+
+add_executable(asciidoc_export asciidoc_export.cpp)
+target_link_libraries(asciidoc_export PRIVATE tabulate::tabulate)
+
+add_executable(refresh_table refresh_table.cpp) 
+target_link_libraries(refresh_table PRIVATE tabulate::tabulate pthread)

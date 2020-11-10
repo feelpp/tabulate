@@ -1,3 +1,4 @@
+
 /*
   __        ___.         .__          __
 _/  |______ \_ |__  __ __|  | _____ _/  |_  ____
@@ -34,13 +35,21 @@ SOFTWARE.
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <optional>
 #include <sstream>
 #include <string>
 #include <tabulate/color.hpp>
 #include <tabulate/font_align.hpp>
 #include <tabulate/font_style.hpp>
 #include <tabulate/utf8.hpp>
+
+#if __cplusplus >= 201703L
+#include <optional>
+using std::optional;
+#else
+#include <tabulate/optional_lite.hpp>
+using nonstd::optional;
+#endif
+
 #include <vector>
 
 namespace tabulate {
@@ -332,7 +341,7 @@ public:
   Format &font_style(const std::vector<FontStyle> &style) {
     if (font_style_.has_value()) {
       for (auto &s : style)
-        font_style_.value().push_back(s);
+        font_style_->push_back(s);
     } else {
       font_style_ = style;
     }
@@ -459,15 +468,15 @@ public:
 
     if (first.font_style_.has_value()) {
       // Merge font styles using std::set_union
-      std::vector<FontStyle> merged_font_style(first.font_style_.value().size() +
-                                               second.font_style_.value().size());
+      std::vector<FontStyle> merged_font_style(first.font_style_->size() +
+                                               second.font_style_->size());
 #if defined(_WIN32) || defined(_WIN64)
       // Fixes error in Windows - Sequence not ordered
-      std::sort(first.font_style_.value().begin(), first.font_style_.value().end());
-      std::sort(second.font_style_.value().begin(), second.font_style_.value().end());
+      std::sort(first.font_style_->begin(), first.font_style_->end());
+      std::sort(second.font_style_->begin(), second.font_style_->end());
 #endif
-      std::set_union(first.font_style_.value().begin(), first.font_style_.value().end(),
-                     second.font_style_.value().begin(), second.font_style_.value().end(),
+      std::set_union(first.font_style_->begin(), first.font_style_->end(),
+                     second.font_style_->begin(), second.font_style_->end(),
                      merged_font_style.begin());
       result.font_style_ = merged_font_style;
     } else
@@ -683,6 +692,8 @@ private:
   friend class TableInternal;
   friend class Printer;
   friend class MarkdownExporter;
+  friend class LatexExporter;
+  friend class AsciiDocExporter;
 
   void set_defaults() {
     // NOTE: width and height are not set here
@@ -775,67 +786,67 @@ private:
   }
 
   // Element width and height
-  std::optional<size_t> width_{};
-  std::optional<size_t> height_{};
+  optional<size_t> width_{};
+  optional<size_t> height_{};
 
   // Font styling
-  std::optional<FontAlign> font_align_{};
-  std::optional<std::vector<FontStyle>> font_style_{};
-  std::optional<Color> font_color_{};
-  std::optional<Color> font_background_color_{};
+  optional<FontAlign> font_align_{};
+  optional<std::vector<FontStyle>> font_style_{};
+  optional<Color> font_color_{};
+  optional<Color> font_background_color_{};
 
   // Element padding
-  std::optional<size_t> padding_left_{};
-  std::optional<size_t> padding_top_{};
-  std::optional<size_t> padding_right_{};
-  std::optional<size_t> padding_bottom_{};
+  optional<size_t> padding_left_{};
+  optional<size_t> padding_top_{};
+  optional<size_t> padding_right_{};
+  optional<size_t> padding_bottom_{};
 
   // Element border
-  std::optional<bool> show_border_top_{};
-  std::optional<std::string> border_top_{};
-  std::optional<Color> border_top_color_{};
-  std::optional<Color> border_top_background_color_{};
+  optional<bool> show_border_top_{};
+  optional<std::string> border_top_{};
+  optional<Color> border_top_color_{};
+  optional<Color> border_top_background_color_{};
 
-  std::optional<bool> show_border_bottom_{};
-  std::optional<std::string> border_bottom_{};
-  std::optional<Color> border_bottom_color_{};
-  std::optional<Color> border_bottom_background_color_{};
+  optional<bool> show_border_bottom_{};
+  optional<std::string> border_bottom_{};
+  optional<Color> border_bottom_color_{};
+  optional<Color> border_bottom_background_color_{};
 
-  std::optional<bool> show_border_left_{};
-  std::optional<std::string> border_left_{};
-  std::optional<Color> border_left_color_{};
-  std::optional<Color> border_left_background_color_{};
+  optional<bool> show_border_left_{};
+  optional<std::string> border_left_{};
+  optional<Color> border_left_color_{};
+  optional<Color> border_left_background_color_{};
 
-  std::optional<bool> show_border_right_{};
-  std::optional<std::string> border_right_{};
-  std::optional<Color> border_right_color_{};
-  std::optional<Color> border_right_background_color_{};
+  optional<bool> show_border_right_{};
+  optional<std::string> border_right_{};
+  optional<Color> border_right_color_{};
+  optional<Color> border_right_background_color_{};
 
   // Element corner
-  std::optional<std::string> corner_top_left_{};
-  std::optional<Color> corner_top_left_color_{};
-  std::optional<Color> corner_top_left_background_color_{};
+  optional<std::string> corner_top_left_{};
+  optional<Color> corner_top_left_color_{};
+  optional<Color> corner_top_left_background_color_{};
 
-  std::optional<std::string> corner_top_right_{};
-  std::optional<Color> corner_top_right_color_{};
-  std::optional<Color> corner_top_right_background_color_{};
+  optional<std::string> corner_top_right_{};
+  optional<Color> corner_top_right_color_{};
+  optional<Color> corner_top_right_background_color_{};
 
-  std::optional<std::string> corner_bottom_left_{};
-  std::optional<Color> corner_bottom_left_color_{};
-  std::optional<Color> corner_bottom_left_background_color_{};
+  optional<std::string> corner_bottom_left_{};
+  optional<Color> corner_bottom_left_color_{};
+  optional<Color> corner_bottom_left_background_color_{};
 
-  std::optional<std::string> corner_bottom_right_{};
-  std::optional<Color> corner_bottom_right_color_{};
-  std::optional<Color> corner_bottom_right_background_color_{};
+  optional<std::string> corner_bottom_right_{};
+  optional<Color> corner_bottom_right_color_{};
+  optional<Color> corner_bottom_right_background_color_{};
 
   // Element column separator
-  std::optional<std::string> column_separator_{};
-  std::optional<Color> column_separator_color_{};
-  std::optional<Color> column_separator_background_color_{};
+  optional<std::string> column_separator_{};
+  optional<Color> column_separator_color_{};
+  optional<Color> column_separator_background_color_{};
 
   // Internationalization
-  std::optional<bool> multi_byte_characters_{};
-  std::optional<std::string> locale_{};
+  optional<bool> multi_byte_characters_{};
+  optional<std::string> locale_{};
 };
 
 } // namespace tabulate

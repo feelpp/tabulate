@@ -1,3 +1,4 @@
+
 /*
   __        ___.         .__          __
 _/  |______ \_ |__  __ __|  | _____ _/  |_  ____
@@ -52,7 +53,7 @@ inline int get_wcswidth(const std::string &string, const std::string &locale,
 
   // The behavior of wcswidth() depends on the LC_CTYPE category of the current locale.
   // Set the current locale based on cell properties before computing width
-  std::locale::global(std::locale(locale));
+  auto old_locale = std::locale::global(std::locale(locale));
 
   // Convert from narrow std::string to wide string
   wchar_t *wide_string = new wchar_t[string.size()];
@@ -61,6 +62,9 @@ inline int get_wcswidth(const std::string &string, const std::string &locale,
   // Compute display width of wide string
   int result = wcswidth(wide_string, max_column_width);
   delete[] wide_string;
+
+  // Restore old locale
+  std::locale::global(old_locale);
 
   return result;
 }

@@ -1,3 +1,4 @@
+
 /*
   __        ___.         .__          __
 _/  |______ \_ |__  __ __|  | _____ _/  |_  ____
@@ -32,8 +33,22 @@ SOFTWARE.
 */
 #pragma once
 #include <tabulate/table_internal.hpp>
-#include <utility>
+
+#if __cplusplus >= 201703L
 #include <variant>
+using std::get_if;
+using std::holds_alternative;
+using std::variant;
+using std::visit;
+#else
+#include <tabulate/variant_lite.hpp>
+using nonstd::get_if;
+using nonstd::holds_alternative;
+using nonstd::variant;
+using nonstd::visit;
+#endif
+
+#include <utility>
 
 namespace tabulate {
 
@@ -41,7 +56,7 @@ class Table {
 public:
   Table() : table_(TableInternal::create()) {}
 
-  Table &add_row(const std::vector<std::variant<std::string, Table>> &cells) {
+  Table &add_row(const std::vector<variant<std::string, const char *, Table>> &cells) {
 
     if (rows_ == 0) {
       // This is the first row added
@@ -60,10 +75,12 @@ public:
 
     for (size_t i = 0; i < cells.size(); ++i) {
       auto cell = cells[i];
-      if (std::holds_alternative<std::string>(cell)) {
-        cell_strings[i] = std::get<std::string>(cell);
+      if (holds_alternative<std::string>(cell)) {
+        cell_strings[i] = *get_if<std::string>(&cell);
+      } else if (holds_alternative<const char *>(cell)) {
+        cell_strings[i] = *get_if<const char *>(&cell);
       } else {
-        auto table = std::get<Table>(cell);
+        auto table = *get_if<Table>(&cell);
         std::stringstream stream;
         table.print(stream);
         cell_strings[i] = stream.str();
@@ -108,11 +125,14 @@ public:
     std::vector<std::shared_ptr<Row>>::iterator ptr;
   };
 
-  auto begin() { return RowIterator(table_->rows_.begin()); }
-  auto end() { return RowIterator(table_->rows_.end()); }
+  auto begin() -> RowIterator { return RowIterator(table_->rows_.begin()); }
+  auto end() -> RowIterator { return RowIterator(table_->rows_.end()); }
 
 private:
   friend class MarkdownExporter;
+  friend class LatexExporter;
+  friend class AsciiDocExporter;
+
   friend std::ostream &operator<<(std::ostream &stream, const Table &table);
   size_t rows_{0};
   size_t cols_{0};

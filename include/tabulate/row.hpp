@@ -1,3 +1,4 @@
+
 /*
   __        ___.         .__          __
 _/  |______ \_ |__  __ __|  | _____ _/  |_  ____
@@ -33,9 +34,17 @@ SOFTWARE.
 #pragma once
 #include <iostream>
 #include <memory>
-#include <optional>
 #include <string>
 #include <tabulate/cell.hpp>
+
+#if __cplusplus >= 201703L
+#include <optional>
+using std::optional;
+#else
+#include <tabulate/optional_lite.hpp>
+using nonstd::optional;
+#endif
+
 #include <vector>
 #ifdef max
 #undef max
@@ -77,8 +86,8 @@ public:
     std::vector<std::shared_ptr<Cell>>::iterator ptr;
   };
 
-  auto begin() { return CellIterator(cells_.begin()); }
-  auto end() { return CellIterator(cells_.end()); }
+  auto begin() -> CellIterator { return CellIterator(cells_.begin()); }
+  auto end() -> CellIterator { return CellIterator(cells_.end()); }
 
 private:
   friend class Printer;
@@ -94,7 +103,7 @@ private:
       auto cell = cells_[i];
       auto format = cell->format();
       if (format.height_.has_value())
-        result = std::max(result, format.height_.value());
+        result = std::max(result, *format.height_);
     }
     return result;
   }
@@ -136,10 +145,10 @@ private:
     auto format = cell.format();
     auto text = cell.get_text();
 
-    auto padding_left = format.padding_left_.value();
-    auto padding_right = format.padding_right_.value();
+    auto padding_left = *format.padding_left_;
+    auto padding_right = *format.padding_right_;
 
-    result += format.padding_top_.value();
+    result += *format.padding_top_;
 
     if (column_width > (padding_left + padding_right)) {
       column_width -= (padding_left + padding_right);
@@ -169,14 +178,14 @@ private:
 
     result += estimated_row_height;
 
-    result += format.padding_bottom_.value();
+    result += *format.padding_bottom_;
 
     return result;
   }
 
   std::vector<std::shared_ptr<Cell>> cells_;
   std::weak_ptr<class TableInternal> parent_;
-  std::optional<Format> format_;
+  optional<Format> format_;
 };
 
 } // namespace tabulate

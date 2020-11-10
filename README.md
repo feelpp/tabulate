@@ -6,13 +6,13 @@
   <a href="https://travis-ci.com/p-ranav/tabulate">
     <img src="https://travis-ci.com/p-ranav/tabulate.svg?token=haZMYySrhmkE9vsJse61&branch=master" alt="ci status"/>
   </a>
-  <a href="https://en.wikipedia.org/wiki/C%2B%2B17">
-    <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="standard"/>
+  <a href="https://en.wikipedia.org/wiki/C%2B%2B11">
+    <img src="https://img.shields.io/badge/C%2B%2B-11-blue.svg" alt="standard"/>
   </a>
   <a href="https://github.com/p-ranav/tabulate/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="license"/>
   </a>
-  <img src="https://img.shields.io/badge/version-1.1-blue.svg?cacheSeconds=2592000" alt="version"/>
+  <img src="https://img.shields.io/badge/version-1.3-blue.svg?cacheSeconds=2592000" alt="version"/>
 </p>
 
 <p align="center">
@@ -40,13 +40,17 @@
     *   [UTF-8 Support](#utf-8-support)
 *   [Exporters](#exporters)
     *   [Markdown](#markdown)
+    *   [AsciiDoc](#asciidoc)
 *   [Building Samples](#building-samples)
+*   [Generating Single Header](#generating-single-header)
 *   [Contributing](#contributing)
 *   [License](#license)
 
 ## Quick Start
 
-`tabulate` is a header-only library. Just add `include/` to your `include_directories` and you should be good to go. 
+`tabulate` is a header-only library. Just add `include/` to your `include_directories` and you should be good to go. A single header file version is also available in `single_include/`.
+
+**NOTE** Tabulate supports `>=C++11`. The rest of this README, however, assumes `C++17` support. 
 
 Create a `Table` object and call `Table.add_rows` to add rows to your table.
 
@@ -652,6 +656,69 @@ The above table renders in Markdown like below.
 | tt3263904 | Sully            |  Clint Eastwood |      $60,000,000 | 9 September 2016 |
 | tt1535109 | Captain Phillips | Paul Greengrass |      $55,000,000 |  11 October 2013 |
 
+### AsciiDoc
+
+Tabulate can export tables as AsciiDoc using an `AsciiDocExporter`. 
+
+```cpp
+#include <tabulate/asciidoc_exporter.hpp>
+using namespace tabulate;
+
+int main() {
+  Table movies;
+  movies.add_row({"S/N", "Movie Name", "Director", "Estimated Budget", "Release Date"});
+  movies.add_row({"tt1979376", "Toy Story 4", "Josh Cooley", "$200,000,000", "21 June 2019"});
+  movies.add_row({"tt3263904", "Sully", "Clint Eastwood", "$60,000,000", "9 September 2016"});
+  movies.add_row(
+      {"tt1535109", "Captain Phillips", "Paul Greengrass", "$55,000,000", " 11 October 2013"});
+
+  // center align 'Director' column
+  movies.column(2).format().font_align(FontAlign::center);
+
+  // right align 'Estimated Budget' column
+  movies.column(3).format().font_align(FontAlign::right);
+
+  // right align 'Release Date' column
+  movies.column(4).format().font_align(FontAlign::right);
+
+  movies[1][2].format().font_style({FontStyle::bold, FontStyle::italic});
+  movies[2][1].format().font_style({FontStyle::italic});
+
+  // Color header cells
+  for (size_t i = 0; i < 5; ++i) {
+    movies[0][i]
+        .format()
+        .font_color(Color::white)
+        .font_style({FontStyle::bold})
+        .background_color(Color::blue);
+  }
+
+  AsciiDocExporter exporter;
+  auto asciidoc = exporter.dump(movies);
+
+  // tabulate::table
+  std::cout << movies << "\n\n";
+
+  // Exported AsciiDoc
+  std::cout << asciidoc << std::endl;
+}
+```
+Below is the export of the example above:
+
+```
+[cols="<,<,^,>,>"]
+|===
+|*S/N*|*Movie Name*|*Director*|*Estimated Budget*|*Release Date*
+
+|tt1979376|Toy Story 4|*_Josh Cooley_*|$200,000,000|21 June 2019
+|tt3263904|_Sully_|Clint Eastwood|$60,000,000|9 September 2016
+|tt1535109|Captain Phillips|Paul Greengrass|$55,000,000| 11 October 2013
+|===
+```
+The rendered output you can see here: http://tpcg.io/pbbfU3ks
+
+**NOTE** Alignment is only supported per column. The font styles `FontStyle::bold` and `FontStyle::italic` can be used for each cell, also in combination.
+
 ## Building Samples
 
 There are a number of samples in the `samples/` directory, e.g., [Mario](https://github.com/p-ranav/tabulate/blob/master/samples/mario.cpp). You can build these samples by running the following commands.
@@ -659,14 +726,22 @@ There are a number of samples in the `samples/` directory, e.g., [Mario](https:/
 ```bash
 mkdir build
 cd build
-cmake -DSAMPLES=ON ..
+cmake -DSAMPLES=ON -DUSE_CPP17=ON ..
 make
 ./samples/mario
 ```
 
+Note the `USE_CPP17` variable. `Tabulate` uses `std::variant` and `std::optional`. If you do not have `C++17` compiler support for these data structures, build without this flag. `Tabulate` will then use [variant-lite](https://github.com/martinmoene/variant-lite) and [optional-lite](https://github.com/martinmoene/optional-lite).
+
 <p align="center">
   <img width="400" src="img/mario.png"/>  
 </p>
+
+## Generating Single Header
+
+```bash
+python3 utils/amalgamate/amalgamate.py -c single_include.json -s .
+```
 
 ## Contributing
 Contributions are welcome, have a look at the [CONTRIBUTING.md](CONTRIBUTING.md) document for more information.

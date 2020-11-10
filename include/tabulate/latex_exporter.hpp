@@ -32,11 +32,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #pragma once
-#include <iostream>
-#include <memory>
-#include <string>
-#include <tabulate/format.hpp>
-#include <tabulate/utf8.hpp>
+#include <tabulate/exporter.hpp>
 
 #if __cplusplus >= 201703L
 #include <optional>
@@ -46,32 +42,79 @@ using std::optional;
 using nonstd::optional;
 #endif
 
-#include <vector>
-
 namespace tabulate {
 
-class Cell {
+class LatexExporter : public Exporter {
+
+  static const char new_line = '\n';
+
 public:
-  explicit Cell(std::shared_ptr<class Row> parent) : parent_(parent) {}
+  class ExportOptions {
+  public:
+    ExportOptions &indentation(std::size_t value) {
+      indentation_ = value;
+      return *this;
+    }
 
-  void set_text(const std::string &text) { data_ = text; }
+  private:
+    friend class LatexExporter;
+    optional<size_t> indentation_;
+  };
 
-  const std::string &get_text() { return data_; }
+  ExportOptions &configure() { return options_; }
 
-  size_t size() {
-    return get_sequence_length(data_, locale(), is_multi_byte_character_support_enabled());
+  std::string dump(Table &table) override {
+    std::string result{"\\begin{tabular}"};
+    result += new_line;
+
+    result += add_alignment_header(table);
+    result += new_line;
+    const auto rows = table.rows_;
+    // iterate content and put text into the table.
+    for (size_t i = 0; i < rows; i++) {
+      auto &row = table[i];
+      // apply row content indentation
+      if (options_.indentation_.has_value()) {
+        result += std::string(options_.indentation_.value(), ' ');
+      }
+
+      for (size_t j = 0; j < row.size(); j++) {
+
+        result += row[j].get_text();
+
+        // check column position, need "\\" at the end of each row
+        if (j < row.size() - 1) {
+          result += " & ";
+        } else {
+          result += " \\\\";
+        }
+      }
+      result += new_line;
+    }
+
+    result += "\\end{tabular}";
+    return result;
   }
 
-  std::string locale() { return *format().locale_; }
-
-  Format &format();
-
-  bool is_multi_byte_character_support_enabled();
-
 private:
-  std::string data_;
-  std::weak_ptr<class Row> parent_;
-  optional<Format> format_;
+  std::string add_alignment_header(Table &table) {
+    std::string result{"{"};
+
+    for (auto &cell : table[0]) {
+      auto format = cell.format();
+      if (format.font_align_.value() == FontAlign::left) {
+        result += 'l';
+      } else if (format.font_align_.value() == FontAlign::center) {
+        result += 'c';
+      } else if (format.font_align_.value() == FontAlign::right) {
+        result += 'r';
+      }
+    }
+
+    result += "}";
+    return result;
+  }
+  ExportOptions options_;
 };
 
 } // namespace tabulate

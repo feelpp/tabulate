@@ -1,3 +1,4 @@
+
 /*
   __        ___.         .__          __
 _/  |______ \_ |__  __ __|  | _____ _/  |_  ____
@@ -78,8 +79,8 @@ public:
     std::vector<std::reference_wrapper<Cell>>::iterator ptr;
   };
 
-  auto begin() { return CellIterator(cells_.begin()); }
-  auto end() { return CellIterator(cells_.end()); }
+  auto begin() -> CellIterator { return CellIterator(cells_.begin()); }
+  auto end() -> CellIterator { return CellIterator(cells_.end()); }
 
 private:
   friend class ColumnFormat;
@@ -96,7 +97,7 @@ private:
       auto cell = cells_[i];
       auto format = cell.get().format();
       if (format.width_.has_value())
-        result = std::max(result, format.width_.value());
+        result = std::max(result, *format.width_);
     }
     return result;
   }
@@ -124,7 +125,7 @@ private:
     Cell &cell = cells_[cell_index].get();
     auto format = cell.format();
     if (format.padding_left_.has_value())
-      result += format.padding_left_.value();
+      result += *format.padding_left_;
 
     // Check if input text has newlines
     auto text = cell.get_text();
@@ -148,7 +149,7 @@ private:
     }
 
     if (format.padding_right_.has_value())
-      result += format.padding_right_.value();
+      result += *format.padding_right_;
 
     return result;
   }
