@@ -45,7 +45,7 @@ else()
 endif()
 
 target_include_directories(tabulate INTERFACE
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/feelpp/tabulate>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/tabulate>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
 
 if( SAMPLES )
@@ -70,6 +70,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tabulateConfig.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
         DESTINATION share/feelpp/feel/cmake/modules )
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/feelpp/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/
         USE_SOURCE_PERMISSIONS
         PATTERN "*.hpp") 
