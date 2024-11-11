@@ -1,14 +1,6 @@
 #include <tabulate/table.hpp>
 using namespace tabulate;
-
-#if __cplusplus >= 201703L
-#include <variant>
-using std::variant;
-#else
-#include <tabulate/variant_lite.hpp>
-using nonstd::variant;
-#endif
-using Row_t = std::vector<variant<std::string, const char *, Table>>;
+using Row_t = Table::Row_t;
 
 int main() {
 
@@ -52,12 +44,14 @@ int main() {
   format.column(2).format().width(25).font_align(FontAlign::center);
   format.column(3).format().width(25).font_align(FontAlign::right);
 
-  format.add_row(
-      {"Word-Wrapping algorithm taking shamelessly from StackOverflow",
-       "Long sentences automatically word-wrap based on the width of the column",
-       "Word-wrapping also plays nicely with alignment rules. For instance, this cell is center "
-       "aligned.",
-       "Enforce \ncustom word-wrapping \nby embedding '\\n' \ncharacters in your cell\n content."});
+  format.add_row({"Word-Wrapping algorithm taking shamelessly from StackOverflow",
+                  "Long sentences automatically word-wrap based on the width of the "
+                  "column",
+                  "Word-wrapping also plays nicely with alignment rules. For instance, "
+                  "this cell is center "
+                  "aligned.",
+                  "Enforce \ncustom word-wrapping \nby embedding '\\n' \ncharacters in "
+                  "your cell\n content."});
   format[1][0].format().font_align(FontAlign::center);
   format[1][2].format().font_align(FontAlign::center);
   format[1][3].format().font_align(FontAlign::right);
@@ -96,9 +90,9 @@ int main() {
 
   readme[9].format().hide_border_top().border_color(Color::white).font_color(Color::yellow);
 
-  readme.add_row(
-      Row_t{"ᚠ ᚡ ᚢ ᚣ ᚤ ᚥ ᚦ ᚧ ᚨ ᚩ ᚪ ᚫ ᚬ ᚭ ᚮ ᚯ ᚰ ᚱ ᚲ ᚳ ᚴ ᚵ ᚶ ᚷ ᚸ ᚹ ᚺ ᚻ ᚼ ᚽ ᚾ ᚿ ᛀ ᛁ ᛂ ᛃ ᛄ ᛅ ᛆ ᛇ "
-            "ᛈ ᛉ ᛊ ᛋ ᛌ ᛍ ᛎ ᛏ ᛐ ᛑ ᛒ ᛓ"});
+  readme.add_row(Row_t{"ᚠ ᚡ ᚢ ᚣ ᚤ ᚥ ᚦ ᚧ ᚨ ᚩ ᚪ ᚫ ᚬ ᚭ ᚮ ᚯ ᚰ ᚱ ᚲ ᚳ ᚴ ᚵ ᚶ ᚷ ᚸ ᚹ ᚺ "
+                       "ᚻ ᚼ ᚽ ᚾ ᚿ ᛀ ᛁ ᛂ ᛃ ᛄ ᛅ ᛆ ᛇ "
+                       "ᛈ ᛉ ᛊ ᛋ ᛌ ᛍ ᛎ ᛏ ᛐ ᛑ ᛒ ᛓ"});
   readme[10]
       .format()
       .font_background_color(Color::red)
@@ -117,7 +111,7 @@ int main() {
       .hide_border();
 
   for (size_t i = 0; i < 9; ++i) {
-    std::vector<variant<std::string, const char *, Table>> row;
+    Row_t row;
     row.push_back(std::to_string(90 - i * 10));
     for (size_t j = 0; j <= 50; ++j) {
       row.push_back(" ");
@@ -125,7 +119,7 @@ int main() {
     chart.add_row(row);
   }
 
-  std::vector<variant<std::string, const char *, Table>> row;
+  Row_t row;
   for (int i = 0; i <= 12; ++i) {
     if ((i + 1) % 4 == 0) {
       row.push_back(std::to_string(i + 1));
